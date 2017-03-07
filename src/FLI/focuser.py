@@ -13,11 +13,11 @@ __date__ = '2012-08-16'
 
 from ctypes import byref, c_char, c_char_p, c_long, c_ubyte, c_double
 
-from lib import FLILibrary, FLIError, FLIWarning, flidomain_t, flidev_t,\
+from .lib import FLILibrary, FLIError, FLIWarning, flidomain_t, flidev_t,\
                 fliframe_t, FLIDOMAIN_USB, FLIDEVICE_FOCUSER,\
                 FLI_TEMPERATURE_INTERNAL, FLI_TEMPERATURE_EXTERNAL
 
-from device import USBDevice
+from .device import USBDevice
 ###############################################################################
 DEBUG = False
 

@@ -387,7 +387,7 @@ class FLILibrary:
                         msg = "trying to load library at path '%s'" % (libname,)
                         FLILibrary.__dll = cdll.LoadLibrary(libname)
                         break #load successful, stop trying
-                    except OSError, err:
+                    except OSError as err:
                         msg = "failed to load library with error: %s" % (err,)
                         warnings.warn(Warning(msg))
                 else:
@@ -399,7 +399,7 @@ class FLILibrary:
                     api_func.argtypes = argtypes
                     if wrap_error_codes:
                         api_func.restype = chk_err
-                except AttributeError, err:
+                except AttributeError as err:
                     warnings.warn(Warning(err))
 
         #set debug level
