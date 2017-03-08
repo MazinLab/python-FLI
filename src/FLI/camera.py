@@ -27,7 +27,7 @@ from .lib import FLILibrary, FLIError, FLIWarning, flidomain_t, flidev_t,\
                 fliframe_t, FLIDOMAIN_USB, FLIDEVICE_CAMERA,\
                 FLI_FRAME_TYPE_NORMAL, FLI_FRAME_TYPE_DARK,\
                 FLI_FRAME_TYPE_RBI_FLUSH, FLI_MODE_8BIT, FLI_MODE_16BIT,\
-                FLI_TEMPERATURE_CCD, FLI_TEMPERATURE_BASE
+                FLI_TEMPERATURE_CCD, FLI_TEMPERATURE_BASE,flibitdepth_t
 
 from .device import USBDevice
 ###############################################################################
@@ -66,7 +66,7 @@ class USBCamera(USBDevice):
         #("FLIGetCameraModeString", [flidev_t, flimode_t, c_char_p, c_size_t]),
         #(flidev_t dev, flimode_t mode_index, char *mode_string, size_t siz);
         buff_size = 32
-        mode_string = create_string_buffer("",buff_size)
+        mode_string = create_string_buffer(b"",buff_size)
         mode_index = self.get_camera_mode()
         self._libfli.FLIGetCameraModeString(self._dev, mode_index, mode_string, c_size_t(buff_size))
         return mode_string.value
@@ -86,9 +86,9 @@ class USBCamera(USBDevice):
         "returns (row_width, img_rows, img_size)"
         left, top, right, bottom   = (c_long(),c_long(),c_long(),c_long())        
         self._libfli.FLIGetVisibleArea(self._dev, byref(left), byref(top), byref(right), byref(bottom))    
-        row_width = (right.value - left.value)/self.hbin
-        img_rows  = (bottom.value - top.value)/self.vbin
-        img_size = img_rows * row_width * sizeof(c_uint16)
+        row_width = int((right.value - left.value)/self.hbin)
+        img_rows  = int((bottom.value - top.value)/self.vbin)
+        img_size = int(img_rows * row_width * sizeof(c_uint16))
         return (row_width, img_rows, img_size)
 
     def set_image_area(self, ul_x, ul_y, lr_x, lr_y):
@@ -101,9 +101,9 @@ class USBCamera(USBDevice):
     def set_image_binning(self, hbin = 1, vbin = 1):
         left, top, right, bottom   = (c_long(),c_long(),c_long(),c_long())        
         self._libfli.FLIGetVisibleArea(self._dev, byref(left), byref(top), byref(right), byref(bottom))    
-        row_width = (right.value - left.value)/hbin
-        img_rows  = (bottom.value - top.value)/vbin
-        self._libfli.FLISetImageArea(self._dev, left, top, left.value + row_width, top.value + img_rows)
+        row_width = int((right.value - left.value)/hbin)
+        img_rows  = int((bottom.value - top.value)/vbin)
+        self._libfli.FLISetImageArea(self._dev, left, top, c_long(left.value + row_width), c_long(top.value + img_rows))
         self._libfli.FLISetHBin(self._dev, hbin)
         self._libfli.FLISetVBin(self._dev, vbin)
         self.hbin = hbin
@@ -171,9 +171,9 @@ class USBCamera(USBDevice):
         #FIXME untested
         bitdepth_var = flibitdepth_t()
         if bitdepth == '8bit':
-            bitdepth_var.value = FLI_MODE_8BIT
+            bitdepth_var.value = FLI_MODE_8BIT.value
         elif bitdepth == '16bit':
-            bitdepth_var.value = FLI_MODE_16BIT
+            bitdepth_var.value = FLI_MODE_16BIT.value
         else:
             raise ValueError("'bitdepth' must be either '8bit' or '16bit'")
         try:

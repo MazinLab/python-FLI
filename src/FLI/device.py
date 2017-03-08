@@ -55,7 +55,7 @@ class USBDevice(object):
         #process list only if it is not NULL
         if tmplist:
             while tmplist[i]: #process members only if they are not NULL
-                dev_name, model = tmplist[i].split(";")
+                dev_name, model = tmplist[i].split(b";")
                 devs.append(cls(dev_name=dev_name,model=model))   #create device objects
                 i += 1
             cls._libfli.FLIFreeList(tmplist)                      #frees memory
